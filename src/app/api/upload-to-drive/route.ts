@@ -27,6 +27,17 @@ export async function POST(request: Request) {
     const drive = getDriveClient();
     const safeName = filename || `upload-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
 
+    // First verify we can access the folder
+    try {
+      await drive.files.get({ fileId: FOLDER_ID, supportsAllDrives: true });
+    } catch (accessErr) {
+      const msg = accessErr instanceof Error ? accessErr.message : String(accessErr);
+      return NextResponse.json({ 
+        error: `Cannot access Drive folder: ${msg}. Make sure the folder is shared with the service account email.`,
+        folderIdUsed: FOLDER_ID,
+      }, { status: 403 });
+    }
+
     // Upload CSV to the watched Drive folder
     const res = await drive.files.create({
       requestBody: {
@@ -39,6 +50,7 @@ export async function POST(request: Request) {
         body: Readable.from(Buffer.from(csv, 'utf-8')),
       },
       fields: 'id,name,webViewLink',
+      supportsAllDrives: true,
     });
 
     return NextResponse.json({
