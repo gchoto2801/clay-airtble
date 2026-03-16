@@ -8,6 +8,8 @@ type BatchStatus = "idle" | "uploading" | "monitoring" | "processing" | "ready" 
 interface BatchState {
   status: BatchStatus;
   csvRows: Record<string, string>[];
+  csvRawText: string;
+  csvFileName: string;
   sentCount: number;
   airtableCount: number;
   expectedCount: number;
@@ -83,7 +85,7 @@ function mapToClayFormat(r: Record<string, string>): Record<string, string> {
 
 export default function Home() {
   const [batch, setBatch] = useState<BatchState>({
-    status: "idle", csvRows: [], sentCount: 0, airtableCount: 0, expectedCount: 0,
+    status: "idle", csvRows: [], csvRawText: "", csvFileName: "", sentCount: 0, airtableCount: 0, expectedCount: 0,
     found: [], reiskip: [], stats: null, reiskipReturns: [], merged: [], sheetUrl: "", error: "",
   });
   const [log, setLog] = useState<string[]>([]);
@@ -112,39 +114,36 @@ export default function Home() {
         const name = r["OWNER_NAME_1"] || r["Owner Name"] || "";
         return classifyOwner(name) === "ENTITY";
       });
-      setBatch(prev => ({ ...prev, csvRows: rows, expectedCount: entities.length, status: "idle", error: "" }));
+      setBatch(prev => ({ ...prev, csvRows: rows, csvRawText: text, csvFileName: file.name, expectedCount: entities.length, status: "idle", error: "" }));
       addLog(`CSV loaded: ${rows.length} rows (${entities.length} entities, ${rows.length - entities.length} persons)`);
     };
     reader.readAsText(file);
   }, [addLog]);
 
-  // Step 1b: Send to Clay
-  const sendToClay = useCallback(async () => {
+  // Step 1b: Upload CSV to Google Drive via n8n webhook
+  const uploadToDrive = useCallback(async () => {
     setBatch(prev => ({ ...prev, status: "uploading", sentCount: 0, error: "" }));
-    addLog("Sending entities to Clay...");
-
-    const entities = batch.csvRows.filter(r => {
-      const name = r["OWNER_NAME_1"] || r["Owner Name"] || "";
-      return classifyOwner(name) === "ENTITY";
-    });
-
-    const mapped = entities.map(mapToClayFormat);
+    addLog("Uploading CSV to Google Drive...");
 
     try {
-      const res = await fetch("/api/send-to-clay", {
+      const res = await fetch("/api/upload-to-drive", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rows: mapped }),
+        body: JSON.stringify({
+          csv: batch.csvRawText,
+          filename: batch.csvFileName,
+        }),
       });
       const data = await res.json();
-      setBatch(prev => ({ ...prev, sentCount: data.success || 0, status: "monitoring" }));
-      addLog(`Sent ${data.success}/${data.sent} entities to Clay. Now monitoring Airtable...`);
+      if (!res.ok) throw new Error(data.error || `Upload failed (${res.status})`);
+      setBatch(prev => ({ ...prev, sentCount: batch.csvRows.length, status: "monitoring" }));
+      addLog(`✅ Uploaded to Drive: ${data.fileName || batch.csvFileName}. n8n will process → Clay. Monitoring Airtable...`);
       startMonitoring();
     } catch (err) {
       setBatch(prev => ({ ...prev, error: String(err), status: "idle" }));
       addLog(`Error: ${err}`);
     }
-  }, [batch.csvRows, addLog]);
+  }, [batch.csvRawText, batch.csvFileName, batch.csvRows.length, addLog]);
 
   // Step 2: Monitor Airtable
   const checkAirtable = useCallback(async () => {
@@ -318,9 +317,9 @@ export default function Home() {
                     </tbody>
                   </table>
                 </div>
-                <button onClick={sendToClay} disabled={batch.status === "uploading"}
+                <button onClick={uploadToDrive} disabled={batch.status === "uploading"}
                   className="mt-3 px-4 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 font-medium">
-                  {batch.status === "uploading" ? "Sending..." : `Send ${batch.expectedCount} Entities to Clay →`}
+                  {batch.status === "uploading" ? "Uploading to Drive..." : `Upload ${batch.csvRows.length} Rows to Google Drive →`}
                 </button>
               </div>
             )}
