@@ -1,43 +1,55 @@
 import { NextResponse } from 'next/server';
+import { google } from 'googleapis';
+import { Readable } from 'stream';
+
+const FOLDER_ID = process.env.GOOGLE_DRIVE_FOLDER_ID || '1uWdDrNYd8yhfiP75Qo0YWOoFN5hqZdRL';
+
+function getDriveClient() {
+  const credJson = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!credJson) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not configured');
+
+  const creds = JSON.parse(credJson);
+  const auth = new google.auth.GoogleAuth({
+    credentials: creds,
+    scopes: ['https://www.googleapis.com/auth/drive.file'],
+  });
+  return google.drive({ version: 'v3', auth });
+}
 
 export async function POST(request: Request) {
-  const webhookUrl = process.env.N8N_UPLOAD_WEBHOOK_URL;
-  if (!webhookUrl) {
-    return NextResponse.json(
-      { error: 'N8N_UPLOAD_WEBHOOK_URL not configured' },
-      { status: 500 }
-    );
-  }
-
   try {
-    const { csv, filename } = await request.json() as { csv: string; filename: string };
+    const { csv, filename } = (await request.json()) as { csv: string; filename: string };
 
     if (!csv) {
       return NextResponse.json({ error: 'csv content required' }, { status: 400 });
     }
 
-    const res = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ csv, filename: filename || 'upload.csv' }),
+    const drive = getDriveClient();
+    const safeName = filename || `upload-${new Date().toISOString().replace(/[:.]/g, '-')}.csv`;
+
+    // Upload CSV to the watched Drive folder
+    const res = await drive.files.create({
+      requestBody: {
+        name: safeName,
+        mimeType: 'text/csv',
+        parents: [FOLDER_ID],
+      },
+      media: {
+        mimeType: 'text/csv',
+        body: Readable.from(Buffer.from(csv, 'utf-8')),
+      },
+      fields: 'id,name,webViewLink',
     });
 
-    if (!res.ok) {
-      const text = await res.text();
-      return NextResponse.json(
-        { error: `n8n webhook error: ${res.status} ${text}` },
-        { status: 502 }
-      );
-    }
-
-    const data = await res.json();
     return NextResponse.json({
       success: true,
-      fileId: data.fileId,
-      fileName: data.fileName,
-      folderId: data.folderId,
+      fileId: res.data.id,
+      fileName: res.data.name,
+      link: res.data.webViewLink,
     });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('Drive upload error:', err);
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
