@@ -438,7 +438,7 @@ export default function Home() {
           {s.phase === "upload" && (
             <Card title="📁 Step 1 — Upload CSV">
               <input ref={fileRef} type="file" accept=".csv" onChange={handleFile}
-                className="block w-full text-sm text-[var(--text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[var(--accent)] file:text-[var(--text)] hover:file:bg-[var(--accent-hover)] file:cursor-pointer" />
+                className="block w-full text-sm text-[var(--text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[var(--dark)] file:text-white hover:file:bg-[var(--accent-hover)] file:cursor-pointer" />
               {s.csvRows.length > 0 && (
                 <div className="mt-4 space-y-4">
                   <div className="grid grid-cols-3 gap-3">
@@ -541,7 +541,7 @@ export default function Home() {
                   After running the Not Found CSV through REISkip, upload the results file here:
                 </p>
                 <input ref={reiskipRef} type="file" accept=".csv" onChange={handleReiskipFile}
-                  className="block w-full text-sm text-[var(--text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[var(--warning)] file:text-black hover:file:opacity-90 file:cursor-pointer" />
+                  className="block w-full text-sm text-[var(--text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[var(--dark)] file:text-white hover:file:opacity-90 file:cursor-pointer" />
                 {s.reiskipReturns.length > 0 && (
                   <p className="mt-2 text-sm text-[var(--success)]">✅ {s.reiskipReturns.length} REISkip returns loaded</p>
                 )}
