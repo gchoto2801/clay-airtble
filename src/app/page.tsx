@@ -396,8 +396,8 @@ export default function Home() {
       {/* Header */}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">🏢 Entity Skip Trace Pipeline</h1>
-          <p className="text-[var(--text-muted)] mt-1">Upload CSV → Clay AI → Classify → REISkip → Consolidated Report</p>
+          <h1 className="text-4xl text-[var(--dark)]">Entity Skip Trace Pipeline</h1>
+          <p className="text-[var(--text-muted)] mt-1 font-medium" style={{ fontFamily: 'Inter, sans-serif', textTransform: 'none', letterSpacing: 'normal' }}>Upload CSV → Clay AI → Classify → REISkip → Consolidated Report</p>
         </div>
         <div className="flex gap-2 shrink-0">
           <button onClick={resumeSession}
@@ -421,7 +421,7 @@ export default function Home() {
         ].map((p, i) => (
           <div key={p.id} className="flex items-center gap-1">
             <div className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-              i <= phaseIdx ? "bg-[var(--accent)] text-white" : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border)]"
+              i <= phaseIdx ? "bg-[var(--dark)] text-white" : "bg-[var(--card)] text-[var(--text-muted)] border border-[var(--border)]"
             }`}>{p.label}</div>
             {i < 3 && <span className={i < phaseIdx ? "text-[var(--accent)]" : "text-[var(--border)]"}>→</span>}
           </div>
@@ -435,7 +435,7 @@ export default function Home() {
           {s.phase === "upload" && (
             <Card title="📁 Step 1 — Upload CSV">
               <input ref={fileRef} type="file" accept=".csv" onChange={handleFile}
-                className="block w-full text-sm text-[var(--text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[var(--accent)] file:text-white hover:file:bg-[var(--accent-hover)] file:cursor-pointer" />
+                className="block w-full text-sm text-[var(--text-muted)] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[var(--accent)] file:text-[var(--text)] hover:file:bg-[var(--accent-hover)] file:cursor-pointer" />
               {s.csvRows.length > 0 && (
                 <div className="mt-4 space-y-4">
                   <div className="grid grid-cols-3 gap-3">
@@ -445,7 +445,7 @@ export default function Home() {
                   </div>
                   <PreviewTable rows={s.csvRows} />
                   <button onClick={startPipeline} disabled={s.loading}
-                    className="w-full py-3 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 font-semibold text-lg">
+                    className="w-full py-3 bg-[var(--dark)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 font-semibold text-lg">
                     {s.loading ? "⏳ Uploading..." : `🚀 Upload to Drive & Start (${s.entityCount} entities)`}
                   </button>
                 </div>
@@ -459,10 +459,10 @@ export default function Home() {
               <div className="mb-5">
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-[var(--text-muted)]">Records received from Clay → Airtable</span>
-                  <span className="font-mono font-bold text-white">{s.airtableCount} / {s.expectedCount}</span>
+                  <span className="font-mono font-bold text-[var(--text)]">{s.airtableCount} / {s.expectedCount}</span>
                 </div>
                 <div className="w-full bg-[var(--bg)] rounded-full h-5 border border-[var(--border)] overflow-hidden">
-                  <div className="bg-[var(--accent)] h-full rounded-full transition-all duration-500 flex items-center justify-center text-xs text-white font-bold"
+                  <div className="bg-[var(--accent)] h-full rounded-full transition-all duration-500 flex items-center justify-center text-xs text-[var(--text)] font-bold"
                     style={{ width: `${progress}%` }}>
                     {progress > 15 ? `${progress}%` : ""}
                   </div>
@@ -522,11 +522,11 @@ export default function Home() {
               {s.reiskip.length > 0 && (
                 <Card title={`🔍 Not Found — Send to REISkip (${s.reiskip.length})`}>
                   <NotFoundTable records={s.reiskip} />
-                  <div className="mt-3 p-3 rounded-lg bg-amber-900/20 border border-amber-700/50 text-amber-300 text-sm">
+                  <div className="mt-3 p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
                     <strong>Next step:</strong> Download this CSV → Upload to <a href="https://reiskip.com" target="_blank" className="underline">reiskip.com</a> → Upload the results below
                   </div>
                   <button onClick={downloadNotFound}
-                    className="mt-3 px-4 py-2 bg-[var(--warning)] text-black rounded-lg hover:opacity-90 font-semibold">
+                    className="mt-3 px-4 py-2 bg-[var(--warning)] text-white rounded-lg hover:opacity-90 font-semibold">
                     ⬇️ Download for REISkip ({s.reiskip.length} rows)
                   </button>
                 </Card>
@@ -544,13 +544,13 @@ export default function Home() {
                 )}
 
                 <div className="mt-4 border-t border-[var(--border)] pt-4">
-                  <p className="text-sm text-white font-medium mb-2">
+                  <p className="text-sm text-[var(--text)] font-medium mb-2">
                     {s.reiskipReturns.length > 0
                       ? `Generate consolidated report: ${s.found.length} from Clay + up to ${s.reiskipReturns.length} from REISkip`
                       : "Skip REISkip and generate Clay-only report:"}
                   </p>
                   <button onClick={generateReport} disabled={s.loading}
-                    className="w-full py-3 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 font-semibold">
+                    className="w-full py-3 bg-[var(--dark)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50 font-semibold">
                     {s.loading ? "⏳ Generating..." : "🔗 Generate Consolidated Report + Analytics"}
                   </button>
                 </div>
@@ -573,7 +573,7 @@ export default function Home() {
                 )}
                 {s.reiskip.length > 0 && (
                   <button onClick={downloadNotFound}
-                    className="px-4 py-2 bg-[var(--warning)] text-black rounded-lg hover:opacity-90">
+                    className="px-4 py-2 bg-[var(--warning)] text-white rounded-lg hover:opacity-90">
                     ⬇️ Not Found CSV ({s.reiskip.length})
                   </button>
                 )}
@@ -602,7 +602,7 @@ export default function Home() {
             </div>
           </Card>
           {s.error && (
-            <div className="p-3 rounded-lg bg-red-900/20 border border-red-800 text-red-400 text-sm">
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
               ❌ {s.error}
             </div>
           )}
@@ -615,8 +615,8 @@ export default function Home() {
 // ── Sub-components ────────────────────────────────────────────────────────────
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5">
-      <h2 className="text-lg font-semibold mb-3 text-white">{title}</h2>
+    <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm">
+      <h2 className="text-xl font-semibold mb-3 text-[var(--dark)]">{title}</h2>
       {children}
     </div>
   );

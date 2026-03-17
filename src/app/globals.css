@@ -1,20 +1,29 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg: #0a0a0a;
-  --card: #141414;
-  --border: #262626;
-  --text: #e5e5e5;
-  --text-muted: #737373;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --error: #ef4444;
+  --bg: #FFFFFF;
+  --card: #F5F8FC;
+  --border: #D4DEE8;
+  --text: #1A1A1A;
+  --text-muted: #555555;
+  --accent: #1E6FBF;
+  --accent-hover: #1B5FA6;
+  --primary: #2563A8;
+  --dark: #1B3556;
+  --success: #15803D;
+  --warning: #D97706;
+  --error: #DC2626;
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: 'Bebas Neue', 'Anton', system-ui, sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
