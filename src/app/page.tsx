@@ -395,9 +395,12 @@ export default function Home() {
     <div className="max-w-7xl mx-auto px-4 py-8">
       {/* Header */}
       <div className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-4xl text-[var(--dark)]">Entity Skip Trace Pipeline</h1>
-          <p className="text-[var(--text-muted)] mt-1 font-medium" style={{ fontFamily: 'Inter, sans-serif', textTransform: 'none', letterSpacing: 'normal' }}>Upload CSV → Clay AI → Classify → REISkip → Consolidated Report</p>
+        <div className="flex items-center gap-4">
+          <img src="/allied-icon.png" alt="Allied Development" className="h-12 w-auto" />
+          <div>
+            <h1 className="text-4xl text-[var(--dark)]">Entity Skip Trace Pipeline</h1>
+            <p className="text-[var(--text-muted)] mt-1 font-medium" style={{ fontFamily: 'Inter, sans-serif', textTransform: 'none', letterSpacing: 'normal' }}>Upload CSV → Clay AI → Classify → REISkip → Consolidated Report</p>
+          </div>
         </div>
         <div className="flex gap-2 shrink-0">
           <button onClick={resumeSession}
