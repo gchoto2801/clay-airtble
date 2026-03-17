@@ -146,7 +146,8 @@ export function cleanRecord(raw: Record<string, string>): CleanedRecord {
   ].filter(Boolean);
 
   const allNames = [...new Set([...officerNames, agentName, ...extras].filter(Boolean))];
-  const found = !!(allNames.length || allPhones.length || allEmails.length);
+  // "Found" = has at least 1 phone OR 1 email (just having names isn't enough for skip trace)
+  const found = !!(allPhones.length || allEmails.length);
 
   return {
     ownerName: pick(raw, 'Owner_Name', 'Owner Name', 'OWNER_NAME_1'),
