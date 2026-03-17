@@ -146,6 +146,16 @@ export default function Home() {
       const entities = s.csvRows.filter(r => isEntity(r["OWNER_NAME_1"]||r["Owner Name"]||""));
       const expectedCount = entities.length;
 
+      // Clear old Airtable records first
+      addLog("🗑️ Clearing old records from Airtable...");
+      const clearRes = await fetch("/api/airtable/clear", { method: "DELETE" });
+      const clearData = await clearRes.json();
+      if (clearRes.ok) {
+        addLog(`✅ Cleared ${clearData.deleted} old records from Airtable`);
+      } else {
+        addLog(`⚠️ Could not clear Airtable: ${clearData.error} — continuing anyway`);
+      }
+
       addLog(`Uploading CSV to Google Drive (${s.csvRows.length} rows)...`);
       const driveRes = await fetch("/api/upload-to-drive", {
         method: "POST",
